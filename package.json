@@ -1,5 +1,5 @@
 {
-  "name": "github-action-redmine-integration",
+  "name": "redmine-integration-action",
   "version": "0.1.0",
   "description": "integrate with redmine",
   "main": "index.js",
@@ -8,13 +8,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/thaim/github-action-redmine-integration.git"
+    "url": "git+ssh://git@github.com/thaim/redmine-integration-action.git"
   },
   "keywords": [],
   "author": "thaim",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/thaim/github-action-redmine-integration/issues"
+    "url": "https://github.com/thaim/redmine-integration-action/issues"
   },
-  "homepage": "https://github.com/thaim/github-action-redmine-integration#readme"
+  "homepage": "https://github.com/thaim/redmine-integration-action#readme"
 }
