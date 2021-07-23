@@ -1,6 +1,6 @@
 # action.yml
 name: 'Redmine Integration'
-description: 'Greet someone and record the time'
+description: 'update redmine issue'
 inputs:
   who-to-greet:  # id of input
     description: 'Who to greet'
