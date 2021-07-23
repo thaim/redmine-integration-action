@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/thaim/redmine-integration-action#readme",
   "dependencies": {
+    "dotenv": "^10.0.0",
     "node-redmine": "^0.2.2"
   },
   "devDependencies": {

@@ -1,5 +1,9 @@
 const Redmine = require('node-redmine');
 
+if (!process.env.CI) {
+  require('dotenv').config();
+}
+
 function run() {
   try {
     const hostname = process.env.REDMINE_HOST;
