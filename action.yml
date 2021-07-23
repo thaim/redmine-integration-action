@@ -2,10 +2,9 @@
 name: 'Redmine Integration'
 description: 'update redmine issue'
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
+  token:
+    description: 'github token'
     required: true
-    default: 'World'
 outputs:
   time: # id of output
     description: 'The time we greeted you'
