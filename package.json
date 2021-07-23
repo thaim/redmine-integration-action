@@ -21,6 +21,9 @@
     "url": "https://github.com/thaim/redmine-integration-action/issues"
   },
   "homepage": "https://github.com/thaim/redmine-integration-action#readme",
+  "dependencies": {
+    "node-redmine": "^0.2.2"
+  },
   "devDependencies": {
     "eslint": "^7.31.0",
     "eslint-plugin-node": "^11.1.0"

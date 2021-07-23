@@ -1,15 +1,21 @@
-const core = require('@actions/core');
-const github = require('@actions/github');
+const Redmine = require('node-redmine');
 
-try {
-  // `who-to-greet` input defined in action metadata file
-  const nameToGreet = core.getInput('who-to-greet');
-  console.log(`Hello ${nameToGreet}!`);
-  const time = (new Date()).toTimeString();
-  core.setOutput("time", time);
-  // Get the JSON webhook payload for the event that triggered the workflow
-  const payload = JSON.stringify(github.context.payload, undefined, 2)
-  console.log(`The event payload: ${payload}`);
-} catch (error) {
-  core.setFailed(error.message);
+function run() {
+  try {
+    const hostname = process.env.REDMINE_HOST;
+    const config = {
+      apiKey: process.env.REDMINE_APIKEY
+    };
+    const redmine = new Redmine(hostname, config);
+
+    redmine.get_issue_by_id(776, null, function(err, data) {
+      if (err) throw err;
+
+      console.log(JSON.stringify(data.issue));
+    });
+  } catch (error) {
+    console.error("error: " + error);
+  }
 }
+
+run();
