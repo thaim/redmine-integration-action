@@ -4,7 +4,7 @@ if (!process.env.CI) {
   require('dotenv').config();
 }
 
-function run() {
+async function run() {
   try {
     const hostname = process.env.REDMINE_HOST;
     const config = {
