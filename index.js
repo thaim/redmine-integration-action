@@ -1,3 +1,4 @@
+const github = require('@actions/github');
 const Redmine = require('node-redmine');
 
 if (!process.env.CI) {
