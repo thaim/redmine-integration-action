@@ -1,3 +1,4 @@
+const core = require('@actions/core');
 const github = require('@actions/github');
 const Redmine = require('node-redmine');
 
@@ -13,7 +14,7 @@ async function run() {
     };
     const redmine = new Redmine(hostname, config);
     const context = github.context;
-    const octokit = github.getOctokit(${{ secrets.GITHUB_TOKEN }})
+    const octokit = github.getOctokit(core.getInput('token'))
 
     const pr = await octokit.rest.pulls.get({
       owner: context.repo.owner,
