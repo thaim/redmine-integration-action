@@ -5,11 +5,11 @@ const Redmine = require('node-redmine');
 async function run() {
   try {
     const context = github.context;
-    const octokit = github.getOctokit(core.getInput('token'))
+    const octokit = github.getOctokit(core.getInput('token'));
 
     const hostname = core.getInput('redmine_host');
     const config = {
-      apiKey: core.getInput('redmine_apikey');
+      apiKey: core.getInput('redmine_apikey')
     };
     const redmine = new Redmine(hostname, config);
 
