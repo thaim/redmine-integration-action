@@ -5,6 +5,12 @@ inputs:
   token:
     description: 'github token'
     required: true
+  redmine_host:
+    description: 'redmine hostname to integrate with'
+    required: true
+  redmine_apikey:
+    description: 'redmine apikey to use'
+    required: true
 outputs:
   time: # id of output
     description: 'The time we greeted you'
