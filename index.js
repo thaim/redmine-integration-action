@@ -4,13 +4,14 @@ const Redmine = require('node-redmine');
 
 async function run() {
   try {
-    const hostname = process.env.REDMINE_HOST;
-    const config = {
-      apiKey: process.env.REDMINE_APIKEY
-    };
-    const redmine = new Redmine(hostname, config);
     const context = github.context;
     const octokit = github.getOctokit(core.getInput('token'))
+
+    const hostname = core.getInput('redmine_host');
+    const config = {
+      apiKey: core.getInput('redmine_apikey');
+    };
+    const redmine = new Redmine(hostname, config);
 
     const pr = await octokit.rest.pulls.get({
       owner: context.repo.owner,
