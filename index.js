@@ -2,10 +2,6 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const Redmine = require('node-redmine');
 
-if (!process.env.CI) {
-  require('dotenv').config();
-}
-
 async function run() {
   try {
     const hostname = process.env.REDMINE_HOST;
