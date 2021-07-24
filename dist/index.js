@@ -39721,6 +39721,7 @@ async function run() {
     });
   } catch (error) {
     console.error("error: " + error);
+    process.exit(1);
   }
 }
 
