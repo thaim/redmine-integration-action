@@ -12,12 +12,14 @@ async function run() {
       apiKey: core.getInput('redmine_apikey')
     };
     const redmine = new Redmine(hostname, config);
-
     const pr = await octokit.rest.pulls.get({
       owner: context.repo.owner,
       repo: context.repo.repo,
       pull_number: context.payload.pull_request.number
     });
+
+    console.log("initialize done");
+
     const redmine_issue_numbers = await parse_redmine_issues(pr.data);
 
     redmine_issue_numbers.forEach(id => {
