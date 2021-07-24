@@ -10,6 +10,7 @@
   "parserOptions": {
     "ecmaVersion": 2020
   },
+  "ignorePatterns": ["dist/*"],
   "rules": {
     "node/exports-style": "error",
     "node/no-deprecated-api": "error",
