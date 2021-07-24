@@ -1,3 +1,5 @@
+const helper = require('./helper.js');
+
 const core = require('@actions/core');
 const github = require('@actions/github');
 const Redmine = require('node-redmine');
@@ -18,9 +20,7 @@ async function run() {
       pull_number: context.payload.pull_request.number
     });
 
-    console.log("initialize done");
-
-    const redmine_issue_numbers = await parse_redmine_issues(pr.data);
+    const redmine_issue_numbers = await helper.parse_redmine_issues(pr.data.body);
 
     redmine_issue_numbers.forEach(id => {
       redmine.get_issue_by_id(id, null, function(err, data) {
@@ -33,11 +33,6 @@ async function run() {
     console.error("error: " + error);
     process.exit(1);
   }
-}
-
-async function parse_redmine_issues(prdata) {
-  console.log("parsing redmine issues: " + JSON.stringify(prdata));
-  return [776];
 }
 
 run();
