@@ -39716,7 +39716,7 @@ async function run() {
       redmine.get_issue_by_id(id, null, function(err, data) {
         if (err) throw err;
 
-        console.log(JSON.stringify(data.issue));
+        console.log("describe issue: " + JSON.stringify(data.issue));
       });
     });
   } catch (error) {
@@ -39726,7 +39726,7 @@ async function run() {
 }
 
 async function parse_redmine_issues(prdata) {
-  console.log(JSON.stringify(prdata));
+  console.log("parsing redmine issues: " + JSON.stringify(prdata));
   return [776];
 }
 
