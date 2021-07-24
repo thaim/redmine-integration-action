@@ -20,10 +20,12 @@ async function run() {
     });
     const redmine_issue_numbers = await parse_redmine_issues(pr.data);
 
-    redmine.get_issue_by_id(776, null, function(err, data) {
-      if (err) throw err;
+    redmine_issue_numbers.forEach(id => {
+      redmine.get_issue_by_id(id, null, function(err, data) {
+        if (err) throw err;
 
-      console.log(JSON.stringify(data.issue));
+        console.log(JSON.stringify(data.issue));
+      });
     });
   } catch (error) {
     console.error("error: " + error);
@@ -32,7 +34,7 @@ async function run() {
 
 async function parse_redmine_issues(prdata) {
   console.log(JSON.stringify(prdata));
-  return 776;
+  return [776];
 }
 
 run();
