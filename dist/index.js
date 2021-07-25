@@ -1,6 +1,28 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 1263:
+/***/ ((module) => {
+
+module.exports.parse_redmine_issues = async function (prdata, redmine_host) {
+  const regexp = new RegExp('.*' + redmine_host + '/issues/(\\d+).*', 'g');
+  const issues = [];
+
+  let result;
+  while ((result = regexp.exec(prdata)) !== null) {
+    issues.push(parseInt(result[1]));
+  }
+
+  return issues;
+}
+
+module.exports.build_message = async function (prdata, context) {
+  return "pull request [" + prdata.title + "](" + prdata.html_url + ") " + context.payload.action;
+}
+
+
+/***/ }),
+
 /***/ 7351:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -39690,6 +39712,8 @@ module.exports = require("zlib");
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
+const helper = __nccwpck_require__(1263);
+
 const core = __nccwpck_require__(2186);
 const github = __nccwpck_require__(5438);
 const Redmine = __nccwpck_require__(2535);
@@ -39710,26 +39734,26 @@ async function run() {
       pull_number: context.payload.pull_request.number
     });
 
-    console.log("initialize done");
+    const redmine_issue_numbers = await helper.parse_redmine_issues(pr.data.body, hostname);
 
-    const redmine_issue_numbers = await parse_redmine_issues(pr.data);
+    const message = await helper.build_message(pr.data, context)
+    const redmine_issue = {
+      "issue": {
+        "notes": message
+      }
+    };
 
     redmine_issue_numbers.forEach(id => {
-      redmine.get_issue_by_id(id, null, function(err, data) {
+      redmine.update_issue(id, redmine_issue, function(err, data) {
         if (err) throw err;
 
-        console.log("describe issue: " + JSON.stringify(data.issue));
+        console.log("update issue: " + JSON.stringify(redmine_issue));
       });
     });
   } catch (error) {
     console.error("error: " + error);
-    process.exit(1);
+    process.exitCode = 1;
   }
-}
-
-async function parse_redmine_issues(prdata) {
-  console.log("parsing redmine issues: " + JSON.stringify(prdata));
-  return [776];
 }
 
 run();
