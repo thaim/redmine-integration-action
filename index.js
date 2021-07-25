@@ -22,11 +22,18 @@ async function run() {
 
     const redmine_issue_numbers = await helper.parse_redmine_issues(pr.data.body, hostname);
 
+    const message = await helper.build_message(pr.data, context)
+    const redmine_issue = {
+      "issue": {
+        "notes": message
+      }
+    };
+
     redmine_issue_numbers.forEach(id => {
-      redmine.get_issue_by_id(id, null, function(err, data) {
+      redmine.update_issue(id, redmine_issue, function(err, data) {
         if (err) throw err;
 
-        console.log("describe issue: " + JSON.stringify(data.issue));
+        console.log("update issue: " + JSON.stringify(redmine_issue));
       });
     });
   } catch (error) {
