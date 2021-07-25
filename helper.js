@@ -10,3 +10,6 @@ module.exports.parse_redmine_issues = async function (prdata, redmine_host) {
   return issues;
 }
 
+module.exports.build_message = async function (prdata, context) {
+  return "pull request [" + prdata.title + "](" + prdata.html_url + ") " + context.payload.action;
+}

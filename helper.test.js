@@ -45,3 +45,36 @@ describe('parse_redmine_issue', () => {
     expect(actual).toEqual(expect.arrayContaining([123]));
   });
 });
+
+describe('build_message', () => {
+  it('create message from title and action', async () => {
+    const prdata = {
+      "title": "my pull request title",
+      "html_url": "https://github.com/thaim/redmine-integration-action/pull/456"
+    };
+    const context = {
+      "payload": {
+        "action": "opened"
+      }
+    };
+    const actual = await sut.build_message(prdata, context);
+
+    expect(actual).toEqual("pull request [my pull request title](https://github.com/thaim/redmine-integration-action/pull/456) opened");
+  });
+
+
+  it('create message which contains quotation in title', async () => {
+    const prdata = {
+      "title": "it's my pull request title",
+      "html_url": "https://github.com/thaim/redmine-integration-action/pull/456"
+    };
+    const context = {
+      "payload": {
+        "action": "opened"
+      }
+    };
+    const actual = await sut.build_message(prdata, context);
+
+    expect(actual).toEqual("pull request [it's my pull request title](https://github.com/thaim/redmine-integration-action/pull/456) opened");
+  });
+});
