@@ -1,4 +1,4 @@
-async function parse_redmine_issues(prdata, redmine_host) {
+module.exports.parse_redmine_issues = async function (prdata, redmine_host) {
   const regexp = new RegExp('.*' + redmine_host + '/issues/(\\d+).*', 'g');
   const issues = [];
 
@@ -10,4 +10,3 @@ async function parse_redmine_issues(prdata, redmine_host) {
   return issues;
 }
 
-module.exports = parse_redmine_issues;
