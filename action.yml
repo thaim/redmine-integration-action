@@ -6,6 +6,7 @@ inputs:
   token:
     description: 'github token'
     required: true
+    default: ${{ github.token }}
   redmine_host:
     description: 'redmine hostname to integrate with'
     required: true
