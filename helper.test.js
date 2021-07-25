@@ -36,3 +36,10 @@ test('parse_redmine_issue parse issues from multiple URL', async () => {
 
   expect(actual).toEqual(expect.arrayContaining([123, 456]));
 });
+
+test('parse_redmine_issue parse issues containing quotation in body', async () => {
+  const body = `it's my issue: "https://redmine.example.com/issues/123"`;
+  const actual = await sut(body, redmine_host);
+
+  expect(actual).toEqual(expect.arrayContaining([123]));
+});
