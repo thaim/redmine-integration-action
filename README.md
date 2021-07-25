@@ -2,7 +2,13 @@
 GitHub Action for updating Redmine issue with GitHub pull request link.
 
 When GitHub pull request created with Redmine issue link, this action update target Redmine issue by adding notes with link to the pull request.
-The note looks like `pull request <pull_requeta_title> <action>` where `<pull_request_title>` is your pull request title and link to the pull request, and `<action>` is `opended`, `closed` or `reopended` depends on the status on your pull request.
+The note looks like below:
+
+```
+pull request <pull_requeta_title> <action>
+```
+
+`<pull_request_title>` is your pull request title and link to the pull request, and `<action>` is `opended`, `closed` or `reopended` depends on the status on your pull request.
 
 
 ## Usage
