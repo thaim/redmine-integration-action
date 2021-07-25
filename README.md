@@ -25,7 +25,6 @@ jobs:
     steps:
       - uses: thaim/redmine-integration-action@main
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           redmine_host: ${{ secrets.REDMINE_HOST }}
           redmine_apikey: ${{ secrets.REDMINE_API_KEY}}
 ```
