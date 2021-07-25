@@ -3,9 +3,13 @@
     "eslint:recommended",
     "plugin:node/recommended"
   ],
-  "plugins": ["node"],
+  "plugins": [
+    "node",
+    "jest"
+  ],
   "env": {
-    "node": true
+    "node": true,
+    "jest/globals": true
   },
   "parserOptions": {
     "ecmaVersion": 2020
