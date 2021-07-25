@@ -2,6 +2,9 @@
 name: 'Redmine Integration'
 description: 'update redmine issue'
 author: 'thaim'
+branding:
+  icon: 'git-pull-request'
+  color: 'red'
 inputs:
   token:
     description: 'github token'
