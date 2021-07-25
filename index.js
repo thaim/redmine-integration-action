@@ -20,7 +20,7 @@ async function run() {
       pull_number: context.payload.pull_request.number
     });
 
-    const redmine_issue_numbers = await helper.parse_redmine_issues(pr.data.body);
+    const redmine_issue_numbers = await helper.parse_redmine_issues(pr.data.body, hostname);
 
     redmine_issue_numbers.forEach(id => {
       redmine.get_issue_by_id(id, null, function(err, data) {
