@@ -29,3 +29,10 @@ test('parse_redmine_issue parse issue with extra strings', async () => {
 
   expect(actual).toEqual(expect.arrayContaining([776]));
 });
+
+test('parse_redmine_issue parse issues from multiple URL', async () => {
+  const body = '* https://redmine.example.com/issues/123\n* https://redmine.example.com/issues/456';
+  const actual = await sut(body, redmine_host);
+
+  expect(actual).toEqual(expect.arrayContaining([123, 456]));
+});
