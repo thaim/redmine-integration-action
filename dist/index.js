@@ -24,10 +24,11 @@ module.exports.build_redmine_message = async function (prdata, context) {
   return 'Github Pull Request "' + prdata.title + '":' + prdata.html_url + ' ' + context.payload.action;
 }
 
-module.exports.build_github_message = async function(redmine_host, redmine_issue_numbers) {
-  return redmine_issue_numbers.reduce(function(message, issue_number) {
-    return message + '[' + issue_number + '](' + redmine_host + '/issues/' + issue_number + ')';
-  }, "Redmine issue(s): ");
+module.exports.build_github_message = function(redmine_host, redmine_issues) {
+  const formatted_issues = redmine_issues.map(function(issue) {
+    return '[#' + issue.id + ': ' + issue.subject + '](' + redmine_host + '/issues/' + issue.id + ')';
+  });
+  return "Redmine issue(s): " + formatted_issues.join('\n');
 }
 
 
@@ -39754,13 +39755,6 @@ async function run() {
         "notes": redmine_message
       }
     };
-    const github_message = await helper.build_github_message(hostname, redmine_issue_numbers);
-    const github_pr_comment = {
-      "owner": context.repo.owner,
-      "repo": context.repo.repo,
-      "issue_number": pr.data.number,
-      "body": github_message
-    };
 
     redmine_issue_numbers.forEach(id => {
       redmine.update_issue(id, redmine_issue_note, function(err, data) {
@@ -39770,7 +39764,20 @@ async function run() {
       });
     });
 
-    octokit.rest.issues.createComment(github_pr_comment);
+    const redmmine_issues = redmine.issues({"issue_id": redmine_issue_numbers.join(",")}, function(err, data) {
+      if (err) throw err;
+
+      const redmine_issues = data.issues;
+      const github_message = helper.build_github_message(hostname, redmine_issues);
+      const github_pr_comment = {
+        "owner": context.repo.owner,
+        "repo": context.repo.repo,
+        "issue_number": pr.data.number,
+        "body": github_message
+      };
+
+      octokit.rest.issues.createComment(github_pr_comment);
+    });
 
   } catch (error) {
     console.error("error: " + error);

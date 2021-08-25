@@ -30,13 +30,6 @@ async function run() {
         "notes": redmine_message
       }
     };
-    const github_message = await helper.build_github_message(hostname, redmine_issue_numbers);
-    const github_pr_comment = {
-      "owner": context.repo.owner,
-      "repo": context.repo.repo,
-      "issue_number": pr.data.number,
-      "body": github_message
-    };
 
     redmine_issue_numbers.forEach(id => {
       redmine.update_issue(id, redmine_issue_note, function(err, data) {
@@ -46,7 +39,20 @@ async function run() {
       });
     });
 
-    octokit.rest.issues.createComment(github_pr_comment);
+    const redmmine_issues = redmine.issues({"issue_id": redmine_issue_numbers.join(",")}, function(err, data) {
+      if (err) throw err;
+
+      const redmine_issues = data.issues;
+      const github_message = helper.build_github_message(hostname, redmine_issues);
+      const github_pr_comment = {
+        "owner": context.repo.owner,
+        "repo": context.repo.repo,
+        "issue_number": pr.data.number,
+        "body": github_message
+      };
+
+      octokit.rest.issues.createComment(github_pr_comment);
+    });
 
   } catch (error) {
     console.error("error: " + error);

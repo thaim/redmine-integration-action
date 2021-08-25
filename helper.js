@@ -18,8 +18,9 @@ module.exports.build_redmine_message = async function (prdata, context) {
   return 'Github Pull Request "' + prdata.title + '":' + prdata.html_url + ' ' + context.payload.action;
 }
 
-module.exports.build_github_message = async function(redmine_host, redmine_issue_numbers) {
-  return redmine_issue_numbers.reduce(function(message, issue_number) {
-    return message + '[' + issue_number + '](' + redmine_host + '/issues/' + issue_number + ')';
-  }, "Redmine issue(s): ");
+module.exports.build_github_message = function(redmine_host, redmine_issues) {
+  const formatted_issues = redmine_issues.map(function(issue) {
+    return '[#' + issue.id + ': ' + issue.subject + '](' + redmine_host + '/issues/' + issue.id + ')';
+  });
+  return "Redmine issue(s): " + formatted_issues.join('\n');
 }
