@@ -16,6 +16,9 @@ inputs:
   redmine_apikey:
     description: 'redmine apikey to use'
     required: true
+  redmine_pattern:
+    description: 'redmine ticket number pattern to check for in pr data and commit messages'
+    required: false
 runs:
   using: 'node12'
   main: 'dist/index.js'

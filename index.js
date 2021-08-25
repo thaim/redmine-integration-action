@@ -19,23 +19,35 @@ async function run() {
       repo: context.repo.repo,
       pull_number: context.payload.pull_request.number
     });
+    const pattern = core.getInput('redmine_pattern');
 
-    const redmine_issue_numbers = await helper.parse_redmine_issues(pr.data.body, hostname);
+    const pr_data = [pr.data.title, pr.data.body, pr.data.head.label].join('\n');
+    const redmine_issue_numbers = await helper.parse_redmine_issues(pr_data, hostname, pattern);
 
-    const message = await helper.build_message(pr.data, context)
-    const redmine_issue = {
+    const redmine_message = await helper.build_redmine_message(pr.data, context)
+    const redmine_issue_note = {
       "issue": {
-        "notes": message
+        "notes": redmine_message
       }
+    };
+    const github_message = await helper.build_github_message(hostname, redmine_issue_numbers);
+    const github_pr_comment = {
+      "owner": context.repo.owner,
+      "repo": context.repo.repo,
+      "issue_number": pr.data.number,
+      "body": github_message
     };
 
     redmine_issue_numbers.forEach(id => {
-      redmine.update_issue(id, redmine_issue, function(err, data) {
+      redmine.update_issue(id, redmine_issue_note, function(err, data) {
         if (err) throw err;
 
-        console.log("update issue: " + JSON.stringify(redmine_issue));
+        console.log("update issue: " + JSON.stringify(redmine_issue_note));
       });
     });
+
+    octokit.rest.issues.createComment(github_pr_comment);
+
   } catch (error) {
     console.error("error: " + error);
     process.exitCode = 1;
