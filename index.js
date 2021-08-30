@@ -21,7 +21,16 @@ async function run() {
     });
     const pattern = core.getInput('redmine_pattern');
 
-    const pr_data = [pr.data.title, pr.data.body, pr.data.head.label].join('\n');
+    const commits = await octokit.rest.pulls.listCommits({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      pull_number: context.payload.pull_request.number
+    });
+    const commit_messages = commits.data.map(function(commit) {
+      return commit.commit.message;
+    });
+
+    const pr_data = [pr.data.title, pr.data.body, pr.data.head.label].concat(commit_messages).join('\n');
     const redmine_issue_numbers = await helper.parse_redmine_issues(pr_data, hostname, pattern);
 
     const redmine_message = await helper.build_redmine_message(pr.data, context)
@@ -35,7 +44,7 @@ async function run() {
       redmine.update_issue(id, redmine_issue_note, function(err, data) {
         if (err) throw err;
 
-        console.log("update issue: " + JSON.stringify(redmine_issue_note));
+        console.log("Update Redmine Issue: " + JSON.stringify(redmine_issue_note));
       });
     });
 
@@ -51,11 +60,12 @@ async function run() {
         "body": github_message
       };
 
+      console.log('Update Pull Request: ' + JSON.stringify(github_pr_comment));
       octokit.rest.issues.createComment(github_pr_comment);
     });
 
   } catch (error) {
-    console.error("error: " + error);
+    console.error("Error: " + error);
     process.exitCode = 1;
   }
 }
