@@ -48,21 +48,26 @@ async function run() {
       });
     });
 
-    const redmmine_issues = redmine.issues({"issue_id": redmine_issue_numbers.join(",")}, function(err, data) {
-      if (err) throw err;
+    if (redmine_issue_numbers.length === 0) {
+      console.log("No issues parsed from Pull Request or commits.");
+      return;
+    } else {
+      const redmmine_issues = redmine.issues({"issue_id": redmine_issue_numbers.join(",")}, function(err, data) {
+        if (err) throw err;
 
-      const redmine_issues = data.issues;
-      const github_message = helper.build_github_message(hostname, redmine_issues);
-      const github_pr_comment = {
-        "owner": context.repo.owner,
-        "repo": context.repo.repo,
-        "issue_number": pr.data.number,
-        "body": github_message
-      };
+        const redmine_issues = data.issues;
+        const github_message = helper.build_github_message(hostname, redmine_issues);
+        const github_pr_comment = {
+          "owner": context.repo.owner,
+          "repo": context.repo.repo,
+          "issue_number": pr.data.number,
+          "body": github_message
+        };
 
-      console.log('Update Pull Request: ' + JSON.stringify(github_pr_comment));
-      octokit.rest.issues.createComment(github_pr_comment);
-    });
+        console.log('Update Pull Request: ' + JSON.stringify(github_pr_comment));
+        octokit.rest.issues.createComment(github_pr_comment);
+      });
+    }
 
   } catch (error) {
     console.error("Error: " + error);
