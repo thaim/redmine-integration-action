@@ -15,7 +15,7 @@ module.exports.parse_redmine_issues = async function (prdata, redmine_host, redm
 }
 
 module.exports.build_redmine_message = async function (prdata, context) {
-  return 'Github Pull Request "' + prdata.title + '":' + prdata.html_url + ' ' + context.payload.action;
+  return 'Github Pull Request [' + prdata.title + '](' + prdata.html_url + ') ' + context.payload.action;
 }
 
 module.exports.build_github_message = function(redmine_host, redmine_issues) {
