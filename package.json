@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "ncc build index.js --license licenses.txt",
+    "redmine": "node redmine.test.js",
     "test": "jest",
     "eslint": "eslint ."
   },
@@ -25,7 +26,7 @@
   "dependencies": {
     "@actions/core": "^1.4.0",
     "@actions/github": "^5.0.0",
-    "node-redmine": "^0.2.2"
+    "node-redmine": "Genomenon/node-redmine#fix-redmine-204-response"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.29.0",
