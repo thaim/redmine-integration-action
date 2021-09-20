@@ -11,7 +11,8 @@ module.exports.parse_redmine_issues = async function (prdata, redmine_host, redm
     issues.push(parseInt(result[1] || result[2]));
   }
 
-  return issues;
+  // Unique issues
+  return [...new Set(issues)];
 }
 
 module.exports.build_redmine_message = async function (prdata, context) {
