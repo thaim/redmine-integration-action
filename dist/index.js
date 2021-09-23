@@ -39759,52 +39759,66 @@ async function run() {
     const pr_data = [pr.data.title, pr.data.body, pr.data.head.label].concat(commit_messages).join('\n');
     const redmine_issue_numbers = helper.parse_redmine_issues(pr_data, hostname, pattern);
 
-    const redmine_issues = await redmine.issues({"issue_id": redmine_issue_numbers.join(",")}, function(err, data) {
-      if (err) throw err;
+    redmine.request('GET', '/my/account.json', {}, function(err, data) {
+      const my_user = data.user.id;
 
-      const redmine_issues = data.issues;
+      const redmine_issues = redmine.issues({"issue_id": redmine_issue_numbers.join(",")}, function(err, data) {
+        if (err) throw err;
 
-      const redmine_message = helper.build_redmine_message(pr.data, context)
-      const redmine_issue_attributes = {
-        "issue": {
-          "notes": redmine_message
-        }
-      };
+        const redmine_issues = data.issues;
 
-      redmine_issues.forEach(issue => {
-        let this_issue_attributes = JSON.parse(JSON.stringify(redmine_issue_attributes));
+        const redmine_message = helper.build_redmine_message(pr.data, context)
+        const redmine_issue_attributes = {
+          "issue": {
+            "notes": redmine_message
+          }
+        };
 
-        if (issue.status.name === "Queued" || issue.status.name === "In Progress") {
-          this_issue_attributes.issue.status_id = 4; // Pull Request
-        }
+        redmine_issues.forEach(issue => {
+          let this_issue_attributes = JSON.parse(JSON.stringify(redmine_issue_attributes));
 
-        redmine.update_issue(issue.id, this_issue_attributes, function(err, data) {
-          if (err) throw err;
+          redmine.get_issue_by_id(issue.id, {"include": "allowed_statuses,journals"}, function(err, data) {
 
-          console.log("Update Redmine Issue: " + JSON.stringify(this_issue_attributes));
+            // The "allowed_statuses" option doesn't seem to work as the Redmine API documentation claims, so we'll skip checking that for now.
+            if (issue.status.name === "Queued" || issue.status.name === "In Progress") {
+              this_issue_attributes.issue.status_id = 4; // Pull Request
+            }
+
+            const already_commented = data.issue.journals.some(function(journal) {
+              return journal.user.id === my_user.id && journal.notes === this_issue_attributes.issue.notes;
+            });
+
+            if (!already_commented) {
+              redmine.update_issue(issue.id, this_issue_attributes, function(err, data) {
+                if (err) throw err;
+
+                console.log("Update Redmine Issue: " + JSON.stringify(this_issue_attributes));
+              });
+            }
+          });
         });
+
+        if (redmine_issue_numbers.length === 0) {
+          console.log("No issues parsed from Pull Request or commits.");
+          return;
+        } else {
+          const redmmine_issues = redmine.issues({"issue_id": redmine_issue_numbers.join(",")}, function(err, data) {
+            if (err) throw err;
+
+            const redmine_issues = data.issues;
+            const github_message = helper.build_github_message(hostname, redmine_issues);
+            const github_pr_comment = {
+              "owner": context.repo.owner,
+              "repo": context.repo.repo,
+              "issue_number": pr.data.number,
+              "body": github_message
+            };
+
+            console.log('Update Pull Request: ' + JSON.stringify(github_pr_comment));
+            octokit.rest.issues.createComment(github_pr_comment);
+          });
+        }
       });
-
-      if (redmine_issue_numbers.length === 0) {
-        console.log("No issues parsed from Pull Request or commits.");
-        return;
-      } else {
-        const redmmine_issues = redmine.issues({"issue_id": redmine_issue_numbers.join(",")}, function(err, data) {
-          if (err) throw err;
-
-          const redmine_issues = data.issues;
-          const github_message = helper.build_github_message(hostname, redmine_issues);
-          const github_pr_comment = {
-            "owner": context.repo.owner,
-            "repo": context.repo.repo,
-            "issue_number": pr.data.number,
-            "body": github_message
-          };
-
-          console.log('Update Pull Request: ' + JSON.stringify(github_pr_comment));
-          octokit.rest.issues.createComment(github_pr_comment);
-        });
-      }
     });
 
   } catch (error) {
