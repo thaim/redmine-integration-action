@@ -29,12 +29,18 @@ async function run() {
     const commit_messages = commits.data.map(function(commit) {
       return commit.commit.message;
     });
+    const comments = await octokit.rest.issues.listComments({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      issue_number: context.payload.pull_request.number
+    });
+    const pr_messages = comments.data;
 
     const pr_data = [pr.data.title, pr.data.body, pr.data.head.label].concat(commit_messages).join('\n');
     const redmine_issue_numbers = helper.parse_redmine_issues(pr_data, hostname, pattern);
 
     redmine.request('GET', '/my/account.json', {}, function(err, data) {
-      const my_user = data.user.id;
+      const my_user = data.user;
 
       const redmine_issues = redmine.issues({"issue_id": redmine_issue_numbers.join(",")}, function(err, data) {
         if (err) throw err;
@@ -62,7 +68,9 @@ async function run() {
               return journal.user.id === my_user.id && journal.notes === this_issue_attributes.issue.notes;
             });
 
-            if (!already_commented) {
+            if (already_commented) {
+              console.log("Skipping Redmine Update, already commented Issue:", JSON.stringify(this_issue_attributes));
+            } else {
               redmine.update_issue(issue.id, this_issue_attributes, function(err, data) {
                 if (err) throw err;
 
@@ -80,16 +88,19 @@ async function run() {
             if (err) throw err;
 
             const redmine_issues = data.issues;
-            const github_message = helper.build_github_message(hostname, redmine_issues);
-            const github_pr_comment = {
-              "owner": context.repo.owner,
-              "repo": context.repo.repo,
-              "issue_number": pr.data.number,
-              "body": github_message
-            };
+            const github_message = helper.build_github_message(hostname, redmine_issues, pr_messages);
 
-            console.log('Update Pull Request: ' + JSON.stringify(github_pr_comment));
-            octokit.rest.issues.createComment(github_pr_comment);
+            if (github_message) {
+              const github_pr_comment = {
+                "owner": context.repo.owner,
+                "repo": context.repo.repo,
+                "issue_number": pr.data.number,
+                "body": github_message
+              };
+
+              console.log('Update Pull Request: ' + JSON.stringify(github_pr_comment));
+              octokit.rest.issues.createComment(github_pr_comment);
+            }
           });
         }
       });
