@@ -1,4 +1,4 @@
-module.exports.parse_redmine_issues = async function (prdata, redmine_host, redmine_pattern) {
+module.exports.parse_redmine_issues = function (prdata, redmine_host, redmine_pattern) {
   let regexp_str = redmine_host + '/issues/(\\d+)';
   if (redmine_pattern) {
     regexp_str += '|' + redmine_pattern;
@@ -15,7 +15,7 @@ module.exports.parse_redmine_issues = async function (prdata, redmine_host, redm
   return [...new Set(issues)];
 }
 
-module.exports.build_redmine_message = async function (prdata, context) {
+module.exports.build_redmine_message = function (prdata, context) {
   return 'Github Pull Request [' + prdata.title + '](' + prdata.html_url + ') ' + context.payload.action;
 }
 

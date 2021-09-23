@@ -4,7 +4,7 @@
 /***/ 1263:
 /***/ ((module) => {
 
-module.exports.parse_redmine_issues = async function (prdata, redmine_host, redmine_pattern) {
+module.exports.parse_redmine_issues = function (prdata, redmine_host, redmine_pattern) {
   let regexp_str = redmine_host + '/issues/(\\d+)';
   if (redmine_pattern) {
     regexp_str += '|' + redmine_pattern;
@@ -21,7 +21,7 @@ module.exports.parse_redmine_issues = async function (prdata, redmine_host, redm
   return [...new Set(issues)];
 }
 
-module.exports.build_redmine_message = async function (prdata, context) {
+module.exports.build_redmine_message = function (prdata, context) {
   return 'Github Pull Request [' + prdata.title + '](' + prdata.html_url + ') ' + context.payload.action;
 }
 
@@ -39757,43 +39757,55 @@ async function run() {
     });
 
     const pr_data = [pr.data.title, pr.data.body, pr.data.head.label].concat(commit_messages).join('\n');
-    const redmine_issue_numbers = await helper.parse_redmine_issues(pr_data, hostname, pattern);
+    const redmine_issue_numbers = helper.parse_redmine_issues(pr_data, hostname, pattern);
 
-    const redmine_message = await helper.build_redmine_message(pr.data, context)
-    const redmine_issue_note = {
-      "issue": {
-        "notes": redmine_message
+    const redmine_issues = await redmine.issues({"issue_id": redmine_issue_numbers.join(",")}, function(err, data) {
+      if (err) throw err;
+
+      const redmine_issues = data.issues;
+
+      const redmine_message = helper.build_redmine_message(pr.data, context)
+      const redmine_issue_attributes = {
+        "issue": {
+          "notes": redmine_message
+        }
+      };
+
+      redmine_issues.forEach(issue => {
+        let this_issue_attributes = JSON.parse(JSON.stringify(redmine_issue_attributes));
+
+        if (issue.status.name === "Queued" || issue.status.name === "In Progress") {
+          this_issue_attributes.issue.status_id = 4; // Pull Request
+        }
+
+        redmine.update_issue(issue.id, this_issue_attributes, function(err, data) {
+          if (err) throw err;
+
+          console.log("Update Redmine Issue: " + JSON.stringify(this_issue_attributes));
+        });
+      });
+
+      if (redmine_issue_numbers.length === 0) {
+        console.log("No issues parsed from Pull Request or commits.");
+        return;
+      } else {
+        const redmmine_issues = redmine.issues({"issue_id": redmine_issue_numbers.join(",")}, function(err, data) {
+          if (err) throw err;
+
+          const redmine_issues = data.issues;
+          const github_message = helper.build_github_message(hostname, redmine_issues);
+          const github_pr_comment = {
+            "owner": context.repo.owner,
+            "repo": context.repo.repo,
+            "issue_number": pr.data.number,
+            "body": github_message
+          };
+
+          console.log('Update Pull Request: ' + JSON.stringify(github_pr_comment));
+          octokit.rest.issues.createComment(github_pr_comment);
+        });
       }
-    };
-
-    redmine_issue_numbers.forEach(id => {
-      redmine.update_issue(id, redmine_issue_note, function(err, data) {
-        if (err) throw err;
-
-        console.log("Update Redmine Issue: " + JSON.stringify(redmine_issue_note));
-      });
     });
-
-    if (redmine_issue_numbers.length === 0) {
-      console.log("No issues parsed from Pull Request or commits.");
-      return;
-    } else {
-      const redmmine_issues = redmine.issues({"issue_id": redmine_issue_numbers.join(",")}, function(err, data) {
-        if (err) throw err;
-
-        const redmine_issues = data.issues;
-        const github_message = helper.build_github_message(hostname, redmine_issues);
-        const github_pr_comment = {
-          "owner": context.repo.owner,
-          "repo": context.repo.repo,
-          "issue_number": pr.data.number,
-          "body": github_message
-        };
-
-        console.log('Update Pull Request: ' + JSON.stringify(github_pr_comment));
-        octokit.rest.issues.createComment(github_pr_comment);
-      });
-    }
 
   } catch (error) {
     console.error("Error: " + error);
