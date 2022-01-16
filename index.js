@@ -13,6 +13,12 @@ async function run() {
     const config = {
       apiKey: core.getInput('redmine_apikey')
     };
+    if (config.apiKey == '') {
+      console.log("redmine apikey has not set. ignored");
+      process.eixtCode = 0;
+      return
+    }
+
     const redmine = new Redmine(hostname, config);
     const pr = await octokit.rest.pulls.get({
       owner: context.repo.owner,
