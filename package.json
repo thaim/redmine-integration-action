@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/thaim/redmine-integration-action#readme",
   "dependencies": {
-    "@actions/core": "^1.6.0",
+    "@actions/core": "^1.9.1",
     "@actions/github": "^5.0.0",
     "node-redmine": "^0.2.2"
   },
