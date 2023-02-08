@@ -57,9 +57,9 @@ describe('build_message', () => {
         "action": "opened"
       }
     };
-    const actual = await sut.build_message(prdata, context);
+    const actual = await sut.build_redmine_message(prdata, context);
 
-    expect(actual).toEqual("pull request [my pull request title](https://github.com/thaim/redmine-integration-action/pull/456) opened");
+    expect(actual).toEqual("Github Pull Request [my pull request title](https://github.com/thaim/redmine-integration-action/pull/456) opened");
   });
 
 
@@ -73,8 +73,8 @@ describe('build_message', () => {
         "action": "opened"
       }
     };
-    const actual = await sut.build_message(prdata, context);
+    const actual = await sut.build_redmine_message(prdata, context);
 
-    expect(actual).toEqual("pull request [it's my pull request title](https://github.com/thaim/redmine-integration-action/pull/456) opened");
+    expect(actual).toEqual("Github Pull Request [it's my pull request title](https://github.com/thaim/redmine-integration-action/pull/456) opened");
   });
 });
